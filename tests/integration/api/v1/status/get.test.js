@@ -4,9 +4,6 @@ test("GET to /api/v1/status should return 200", async () => {
 
   const response = await res.json();
 
-  //response console log
-  console.log(response);
-
   const parsedDDate = new Date(response.updated_at).toISOString();
   expect(response.updated_at).toEqual(parsedDDate);
 
