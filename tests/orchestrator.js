@@ -15,10 +15,10 @@ async function waitForAllServices() {
       if (res.status !== 200) {
         throw new Error();
       }
-
-      const resBody = await res.json();
     }
   }
 }
 
-export default { waitForAllServices };
+const orchestrator = { waitForAllServices };
+
+export default orchestrator;
