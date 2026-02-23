@@ -4,16 +4,20 @@ beforeAll(async () => {
   await orchestrator.waitForAllServices();
 });
 
-test("GET to /api/v1/status should return 200", async () => {
-  const res = await fetch("http://localhost:3000/api/v1/status");
-  expect(res.status).toBe(200);
+describe("GET /api/v1/status", () => {
+  describe("Anonymous user", () => {
+    test("GET to /api/v1/status should return 200", async () => {
+      const res = await fetch("http://localhost:3000/api/v1/status");
+      expect(res.status).toBe(200);
 
-  const response = await res.json();
+      const response = await res.json();
 
-  const parsedDDate = new Date(response.updated_at).toISOString();
-  expect(response.updated_at).toEqual(parsedDDate);
+      const parsedDDate = new Date(response.updated_at).toISOString();
+      expect(response.updated_at).toEqual(parsedDDate);
 
-  expect(response.dependencies.database.db_version).toEqual("16.0");
-  expect(response.dependencies.database.max_connections).toEqual(100);
-  expect(response.dependencies.database.active_connections).toEqual(1);
+      expect(response.dependencies.database.db_version).toEqual("16.0");
+      expect(response.dependencies.database.max_connections).toEqual(100);
+      expect(response.dependencies.database.active_connections).toEqual(1);
+    });
+  });
 });
