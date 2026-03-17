@@ -1,5 +1,5 @@
 import database from "infra/database.js";
-import { DataValidationError } from "infra/errors.js";
+import { DataValidationError, DataNotFoundError } from "infra/errors.js";
 
 async function createUser(newUserInput) {
   await validateUniqueEmail(newUserInput.email);
@@ -66,8 +66,39 @@ async function createUser(newUserInput) {
   }
 }
 
+async function findUserByUsername(username) {
+  const foundUser = await runSelectQuery(username);
+
+  return foundUser;
+
+  async function runSelectQuery(username) {
+    const result = await database.query({
+      text: `select 
+        * 
+      from 
+        users 
+      where 
+        lower(username) = lower($1)
+      limit
+        1
+      ;`,
+      values: [username],
+    });
+
+    if (result.rowCount === 0) {
+      throw new DataNotFoundError({
+        message: "Usuário não foi encontrado para o username informado",
+        action: "Revise os dados enviados e tente novamente",
+      });
+    }
+
+    return result.rows[0];
+  }
+}
+
 const user = {
   createUser,
+  findUserByUsername,
 };
 
 export default user;
