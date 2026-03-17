@@ -76,3 +76,23 @@ export class DataValidationError extends Error {
     };
   }
 }
+
+export class DataNotFoundError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "A consulta realizada não retornou resultados.", {
+      cause,
+    });
+    this.name = "DataNotFoundError";
+    this.action = action || "Ajustes os dados da consulta e tente novamente";
+    this.statusCode = 404;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      statusCode: this.statusCode,
+    };
+  }
+}

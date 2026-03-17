@@ -1,3 +1,4 @@
+import { DataNotFoundError } from "./errors";
 import {
   InternalServerError,
   MethodNotAllowed,
@@ -5,7 +6,7 @@ import {
 } from "/infra/errors.js";
 
 function onErrorHandler(err, req, res) {
-  if (err instanceof DataValidationError) {
+  if (err instanceof DataValidationError || err instanceof DataNotFoundError) {
     res.status(err.statusCode).json(err);
     return;
   }
