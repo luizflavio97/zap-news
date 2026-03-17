@@ -56,3 +56,43 @@ export class MethodNotAllowed extends Error {
     };
   }
 }
+
+export class DataValidationError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Um erro de validação de dados ocorreu.", {
+      cause,
+    });
+    this.name = "DataValidationError";
+    this.action = action || "Ajustes os dados enviados e tente novamente";
+    this.statusCode = 400;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      statusCode: this.statusCode,
+    };
+  }
+}
+
+export class DataNotFoundError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "A consulta realizada não retornou resultados.", {
+      cause,
+    });
+    this.name = "DataNotFoundError";
+    this.action = action || "Ajustes os dados da consulta e tente novamente";
+    this.statusCode = 404;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      statusCode: this.statusCode,
+    };
+  }
+}
