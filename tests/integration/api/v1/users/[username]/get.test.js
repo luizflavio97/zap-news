@@ -39,7 +39,7 @@ describe("GET /api/v1/users/[username]", () => {
         id: responseBody.id,
         username: "test_user",
         email: "test_user@example.com",
-        password: "test_password",
+        password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });

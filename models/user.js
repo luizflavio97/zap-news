@@ -1,9 +1,11 @@
 import database from "infra/database.js";
+import password from "models/password.js";
 import { DataValidationError, DataNotFoundError } from "infra/errors.js";
 
 async function createUser(newUserInput) {
   await validateUniqueEmail(newUserInput.email);
   await validateUniqueUsername(newUserInput.username);
+  await hashPasswordInObject(newUserInput);
 
   const newUser = await runInsertQuery(newUserInput);
 
@@ -45,6 +47,11 @@ async function createUser(newUserInput) {
         action: "Revise os dados enviados e tente novamente",
       });
     }
+  }
+
+  async function hashPasswordInObject(newUserInput) {
+    const hashedPassword = await password.hash(newUserInput.password);
+    newUserInput.password = hashedPassword;
   }
 
   async function runInsertQuery(newUserInput) {
