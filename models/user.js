@@ -11,49 +11,6 @@ async function createUser(newUserInput) {
 
   return newUser;
 
-  async function validateUniqueEmail(email) {
-    const result = await database.query({
-      text: `select 
-        * 
-      from 
-        users 
-      where 
-        lower(email) = lower($1)`,
-      values: [email],
-    });
-
-    if (result.rowCount > 0) {
-      throw new DataValidationError({
-        message: "Dados inválidos para criação de usuário",
-        action: "Revise os dados enviados e tente novamente",
-      });
-    }
-  }
-
-  async function validateUniqueUsername(username) {
-    const result = await database.query({
-      text: `select 
-        * 
-      from 
-        users 
-      where 
-        lower(username) = lower($1)`,
-      values: [username],
-    });
-
-    if (result.rowCount > 0) {
-      throw new DataValidationError({
-        message: "Dados inválidos para criação de usuário",
-        action: "Revise os dados enviados e tente novamente",
-      });
-    }
-  }
-
-  async function hashPasswordInObject(newUserInput) {
-    const hashedPassword = await password.hash(newUserInput.password);
-    newUserInput.password = hashedPassword;
-  }
-
   async function runInsertQuery(newUserInput) {
     const result = await database.query({
       text: `insert into 
@@ -70,6 +27,90 @@ async function createUser(newUserInput) {
       ],
     });
     return result.rows[0];
+  }
+}
+
+async function updateUser(username, updatedUserInput) {
+  const currentUser = await findUserByUsername(username);
+
+  if ("username" in updatedUserInput) {
+    await validateUniqueUsername(updatedUserInput.username);
+  }
+
+  if ("email" in updatedUserInput) {
+    await validateUniqueEmail(updatedUserInput.email);
+  }
+
+  if ("password" in updatedUserInput) {
+    await hashPasswordInObject(updatedUserInput);
+  }
+
+  const updatedUser = { ...currentUser, ...updatedUserInput };
+
+  const result = await runUpdateQuery(updatedUser);
+  return result;
+
+  async function runUpdateQuery(updatedUser) {
+    const result = await database.query({
+      text: `update 
+        users 
+      set 
+        username = $1,
+        email = $2,
+        password = $3,
+        updated_at = timezone('utc', now())
+      where 
+        id = $4
+      returning
+        *
+      ;`,
+      values: [
+        updatedUser.username,
+        updatedUser.email,
+        updatedUser.password,
+        updatedUser.id,
+      ],
+    });
+
+    return result.rows[0];
+  }
+}
+
+async function validateUniqueUsername(username) {
+  const result = await database.query({
+    text: `select 
+        * 
+      from 
+        users 
+      where 
+        lower(username) = lower($1)`,
+    values: [username],
+  });
+
+  if (result.rowCount > 0) {
+    throw new DataValidationError({
+      message: "Dados inválidos para a operação com o usuário",
+      action: "Revise os dados enviados e tente novamente",
+    });
+  }
+}
+
+async function validateUniqueEmail(email) {
+  const result = await database.query({
+    text: `select 
+        * 
+      from 
+        users 
+      where 
+        lower(email) = lower($1)`,
+    values: [email],
+  });
+
+  if (result.rowCount > 0) {
+    throw new DataValidationError({
+      message: "Dados inválidos para a operação com o usuário",
+      action: "Revise os dados enviados e tente novamente",
+    });
   }
 }
 
@@ -103,8 +144,14 @@ async function findUserByUsername(username) {
   }
 }
 
+async function hashPasswordInObject(newUserInput) {
+  const hashedPassword = await password.hash(newUserInput.password);
+  newUserInput.password = hashedPassword;
+}
+
 const user = {
   createUser,
+  updateUser,
   findUserByUsername,
 };
 

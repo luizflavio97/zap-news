@@ -87,7 +87,7 @@ describe("POST /api/v1/users", () => {
       const responseBodyError = await response2.json();
       expect(responseBodyError).toEqual({
         name: "DataValidationError",
-        message: "Dados inválidos para criação de usuário",
+        message: "Dados inválidos para a operação com o usuário",
         action: "Revise os dados enviados e tente novamente",
         statusCode: 400,
       });
@@ -124,7 +124,7 @@ describe("POST /api/v1/users", () => {
       const responseBodyError = await response2.json();
       expect(responseBodyError).toEqual({
         name: "DataValidationError",
-        message: "Dados inválidos para criação de usuário",
+        message: "Dados inválidos para a operação com o usuário",
         action: "Revise os dados enviados e tente novamente",
         statusCode: 400,
       });
