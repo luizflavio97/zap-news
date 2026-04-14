@@ -9,6 +9,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
 });
 
+//TODO: Adapt other tests to use orchestrator method to create users and use faker.js
 describe("PATCH /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
     test("With not existing username, it should return the user", async () => {
@@ -30,32 +31,13 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("With duplicate username, it should not update the user", async () => {
-      const user1 = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "username1",
-          email: "teste1@example.com",
-          password: "test_password",
-        }),
+      await orchestrator.createUser({
+        username: "username1",
       });
 
-      const user2 = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "username2",
-          email: "teste2@example.com",
-          password: "test_password",
-        }),
+      await orchestrator.createUser({
+        username: "username2",
       });
-
-      expect(user1.status).toBe(201);
-      expect(user2.status).toBe(201);
 
       const response = await fetch(
         "http://localhost:3000/api/v1/users/username1",
@@ -83,42 +65,23 @@ describe("PATCH /api/v1/users/[username]", () => {
     });
 
     test("With duplicate email, it should not update the user", async () => {
-      const user1 = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "email1",
-          email: "email1@example.com",
-          password: "test_password",
-        }),
+      await orchestrator.createUser({
+        email: "email1@example.com",
       });
 
-      const user2 = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "email2",
-          email: "email2@example.com",
-          password: "test_password",
-        }),
+      const createdUser2 = await orchestrator.createUser({
+        email: "email2@example.com",
       });
-
-      expect(user1.status).toBe(201);
-      expect(user2.status).toBe(201);
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/email1",
+        `http://localhost:3000/api/v1/users/${createdUser2.username}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: "email1",
+            username: "test_email",
             email: "email1@example.com",
             password: "test_password",
           }),
