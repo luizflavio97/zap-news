@@ -10,22 +10,11 @@ beforeAll(async () => {
 describe("GET /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
     test("With existing username, it should return the user", async () => {
-      const createUserResponse = await fetch(
-        "http://localhost:3000/api/v1/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: "test_user",
-            email: "test_user@example.com",
-            password: "test_password",
-          }),
-        },
-      );
-
-      expect(createUserResponse.status).toBe(201);
+      await orchestrator.createUser({
+        username: "test_user",
+        email: "test_user@example.com",
+        password: "test_password",
+      });
 
       const getUserResponse = await fetch(
         "http://localhost:3000/api/v1/users/test_user",
