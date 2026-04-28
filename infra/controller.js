@@ -3,17 +3,21 @@ import {
   InternalServerError,
   MethodNotAllowed,
   DataValidationError,
+  UnauthorizedError,
 } from "/infra/errors.js";
 
 function onErrorHandler(err, req, res) {
-  if (err instanceof DataValidationError || err instanceof DataNotFoundError) {
+  if (
+    err instanceof DataValidationError ||
+    err instanceof DataNotFoundError ||
+    err instanceof UnauthorizedError
+  ) {
     res.status(err.statusCode).json(err);
     return;
   }
 
   const publicErrorObject = new InternalServerError({
     cause: err,
-    statusCode: err.statusCode,
   });
 
   console.error(publicErrorObject);
