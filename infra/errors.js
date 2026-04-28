@@ -96,3 +96,23 @@ export class DataNotFoundError extends Error {
     };
   }
 }
+
+export class UnauthorizedError extends Error {
+  constructor({ cause, message, action }) {
+    super(message || "Usuário não autenticado.", {
+      cause,
+    });
+    this.name = "UnauthorizedError";
+    this.action = action || "Logue novamente para acessar este recurso";
+    this.statusCode = 401;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      statusCode: this.statusCode,
+    };
+  }
+}
